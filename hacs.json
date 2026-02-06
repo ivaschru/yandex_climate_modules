@@ -9,5 +9,6 @@
     "KZ",
     "MD"
   ],
-  "render_readme": true
+  "render_readme": true,
+  "version": "1.0.0"
 }

@@ -1,7 +1,7 @@
 {
   "domain": "yandex_climate_modules",
   "name": "Yandex Climate Modules (IoT API)",
-  "version": "0.1.13",
+  "version": "1.0.0",
   "documentation": "https://github.com/ivaschru/yandex_climate_modules",
   "issue_tracker": "https://github.com/ivaschru/yandex_climate_modules/issues",
   "requirements": [],
