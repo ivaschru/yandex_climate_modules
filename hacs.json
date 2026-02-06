@@ -1,1 +1,7 @@
-
+{
+  "name": "Yandex Climate Modules (IoT API)",
+  "content_in_root": false,
+  "domains": ["yandex_climate_modules"],
+  "country": ["RU", "KZ", "MD"],
+  "render_readme": true
+}
