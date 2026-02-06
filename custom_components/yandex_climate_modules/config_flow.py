@@ -6,6 +6,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import (
@@ -68,10 +69,10 @@ class YandexClimateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.debug("Token missing permissions (403): %s", e)
                 errors["base"] = "auth_403"
             except YandexIoTApiError as e:
-                _LOGGER.debug("Yandex IoT API error: %s", e)
+                _LOGGER.warning("Yandex IoT API error: %s", e)
                 errors["base"] = "api_error"
             except Exception as e:  # noqa: BLE001
-                _LOGGER.exception("Unexpected error during config flow: %s", e)
+                _LOGGER.error("Unexpected error during config flow: %s", e, exc_info=True)
                 errors["base"] = "unknown"
 
         schema = vol.Schema({vol.Required(CONF_TOKEN): str})
@@ -99,12 +100,5 @@ class YandexClimateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     },
                 )
 
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_DEVICE_IDS): vol.All(
-                    list,
-                    [vol.In(options)],
-                )
-            }
-        )
-        return self.async_show_form(step_id="select_modules", data_schema=schema, errors=errors)
+                schema = vol.Schema({vol.Required(CONF_DEVICE_IDS): cv.multi_select(options)})
+return self.async_show_form(step_id="select_modules", data_schema=schema, errors=errors)

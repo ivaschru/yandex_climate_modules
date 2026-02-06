@@ -18,7 +18,7 @@
     },
     "error": {
       "auth": "Token is invalid or missing iot.view permission.",
-      "unknown": "Unexpected error.",
+      "unknown": "Unexpected error. Check Settings → System → Logs for details (search: yandex_climate_modules).",
       "no_modules_found": "No climate modules found in your Yandex account.",
       "select_at_least_one": "Select at least one module.",
       "auth_401": "HTTP 401: token is invalid/expired or was pasted incorrectly (must be token only, no Bearer prefix).",
