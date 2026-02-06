@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import timedelta
 from typing import Any
 
@@ -9,6 +10,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .api import YandexIoTClient
 from .const import DEFAULT_UPDATE_INTERVAL
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class YandexClimateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -23,6 +26,7 @@ class YandexClimateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> None:
         super().__init__(
             hass,
+            _LOGGER,  # <-- ВАЖНО: передаем logger
             name="Yandex Climate Modules",
             update_interval=timedelta(seconds=interval_s or DEFAULT_UPDATE_INTERVAL),
         )
