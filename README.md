@@ -12,3 +12,6 @@ Custom integration for Home Assistant that exposes Yandex Station climate module
 - Settings → Devices & services → Add integration → "Yandex Climate Modules (IoT API)"
 - Paste OAuth token with `iot.view` scope
 - Select modules found automatically
+
+
+Discovery uses `GET https://api.iot.yandex.net/v1.0/user/info` and then reads each device via `/v1.0/devices/{device_id}`.

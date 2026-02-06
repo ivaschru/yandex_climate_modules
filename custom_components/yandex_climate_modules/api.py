@@ -64,16 +64,41 @@ class YandexIoTClient:
             except Exception as e:  # noqa: BLE001
                 raise YandexIoTApiError(f"Bad JSON: {e}. Body: {text[:300]}") from e
 
-    async def validate_token(self) -> None:
+    async def get_user_info(self) -> dict[str, Any]:
         data = await self._get_json("/user/info")
         if data.get("status") != "ok":
             raise YandexIoTApiError(f"Unexpected response: {data}")
+        return data
 
-    async def list_devices(self) -> list[dict[str, Any]]:
-        data = await self._get_json("/devices")
-        if data.get("status") != "ok":
-            raise YandexIoTApiError(f"Unexpected response: {data}")
-        return data.get("devices", [])
+    async def validate_token(self) -> None:
+        await self.get_user_info()
+
+    async def list_device_ids(self) -> list[str]:
+        """Return all device IDs visible to the user.
+
+        NOTE: Smart Home REST API does not provide a public list-devices endpoint.
+        Device IDs are obtained from /user/info.
+        """
+        data = await self.get_user_info()
+        ids: list[str] = []
+        # Newer payloads include a flat devices list
+        for d in (data.get("devices") or []):
+            did = d.get("id")
+            if did:
+                ids.append(did)
+        # Some payloads include room -> devices mapping (ids)
+        for r in (data.get("rooms") or []):
+            for did in (r.get("devices") or []):
+                if did:
+                    ids.append(did)
+        # unique, preserve order
+        seen: set[str] = set()
+        out: list[str] = []
+        for did in ids:
+            if did not in seen:
+                seen.add(did)
+                out.append(did)
+        return out
 
     async def get_device(self, device_id: str) -> YandexDevice:
         data = await self._get_json(f"/devices/{device_id}")

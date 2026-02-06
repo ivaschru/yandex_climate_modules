@@ -45,7 +45,15 @@ class YandexClimateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             client = YandexIoTClient(session, token)
             try:
                 await client.validate_token()
-                devices = await client.list_devices()
+                device_ids = await client.list_device_ids()
+                # Fetch each device details to find climate modules
+                devices = []
+                for did in device_ids:
+                    try:
+                        dev = await client.get_device(did)
+                        devices.append({"id": dev.id, "name": dev.name, "properties": dev.properties})
+                    except Exception as e:  # noqa: BLE001
+                        _LOGGER.debug("Failed to fetch device %s: %s", did, e)
                 climate = [d for d in devices if _is_climate_module(d)]
                 if not climate:
                     errors["base"] = "no_modules_found"
