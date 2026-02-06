@@ -12,6 +12,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN, INST_CO2, INST_HUMIDITY, INST_TEMPERATURE, CONF_ENABLE_LAST_UPDATED
 
@@ -29,6 +30,12 @@ class DerivedKind:
 
 
 DER_LAST_UPDATED = DerivedKind("last_updated", "Last Updated")
+
+
+def _normalize_device_name(name: str) -> str:
+    if name.strip().lower() == "умное устройство":
+        return "Климатическая станция"
+    return name
 
 
 def _find_prop(properties: list[dict[str, Any]], instance: str) -> dict[str, Any] | None:
@@ -91,7 +98,7 @@ class YandexClimateBase(SensorEntity):
 
     @property
     def device_info(self):
-        base = self._device_payload.get("name") or "Yandex Climate Module"
+        base = _normalize_device_name(self._device_payload.get("name") or "Yandex Climate Module")
         room = self._device_payload.get("room_name")
         tail = self.device_id[-5:]
         name = f"{base} {room} ({tail})" if room else f"{base} ({tail})"
@@ -111,7 +118,7 @@ class YandexClimateSensor(YandexClimateBase):
 
     @property
     def name(self) -> str:
-        base = self._device_payload.get("name") or "Yandex Climate Module"
+        base = _normalize_device_name(self._device_payload.get("name") or "Yandex Climate Module")
         room = self._device_payload.get("room_name")
         tail = self.device_id[-5:]
         device_name = f"{base} {room} ({tail})" if room else f"{base} ({tail})"
@@ -152,7 +159,7 @@ class YandexClimateDerivedSensor(YandexClimateBase):
 
     @property
     def name(self) -> str:
-        base = self._device_payload.get("name") or "Yandex Climate Module"
+        base = _normalize_device_name(self._device_payload.get("name") or "Yandex Climate Module")
         room = self._device_payload.get("room_name")
         tail = self.device_id[-5:]
         device_name = f"{base} {room} ({tail})" if room else f"{base} ({tail})"
@@ -166,6 +173,7 @@ class YandexClimateDerivedSensor(YandexClimateBase):
         if kind.key == "last_updated":
             self._attr_device_class = SensorDeviceClass.TIMESTAMP
             self._attr_state_class = None
+            self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property
     def native_value(self):

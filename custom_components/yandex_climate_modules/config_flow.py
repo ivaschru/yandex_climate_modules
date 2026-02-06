@@ -100,7 +100,10 @@ class YandexClimateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if not climate:
             return self.async_abort(reason="no_modules_found")
 
-        options = {d["id"]: f"{d.get('name','Модуль')}" + (f" — {d.get('room_name')}" if d.get('room_name') else "") + f" ({d['id']})" for d in climate}
+        def _norm(n: str) -> str:
+            return "Климатическая станция" if (n or "").strip().lower() == "умное устройство" else (n or "Модуль")
+
+        options = {d["id"]: f"{_norm(d.get('name'))}" + (f" — {d.get('room_name')}" if d.get('room_name') else "") + f" ({d['id']})" for d in climate}
 
         if user_input is not None:
             selected = user_input.get(CONF_DEVICE_IDS)
