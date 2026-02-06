@@ -28,5 +28,17 @@
     "abort": {
       "no_modules_found": "No climate modules found."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Настройки",
+        "description": "Параметры опроса и создаваемых сенсоров.",
+        "data": {
+          "update_interval": "Интервал опроса (сек)",
+          "enable_last_updated": "Создавать сенсор Last Updated"
+        }
+      }
+    }
   }
 }

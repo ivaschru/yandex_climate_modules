@@ -13,7 +13,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, INST_CO2, INST_HUMIDITY, INST_TEMPERATURE
+from .const import DOMAIN, INST_CO2, INST_HUMIDITY, INST_TEMPERATURE, CONF_ENABLE_LAST_UPDATED
 
 INST_TO_META: dict[str, tuple[str, str, SensorDeviceClass | None]] = {
     INST_TEMPERATURE: ("Temperature", "°C", SensorDeviceClass.TEMPERATURE),
@@ -57,15 +57,17 @@ async def async_setup_entry(
     coordinator = data["coordinator"]
     device_ids: list[str] = entry.data.get("device_ids", [])
 
+    enable_last = entry.options.get(CONF_ENABLE_LAST_UPDATED, True)
+
     entities: list[SensorEntity] = []
 
     for did in device_ids:
-        # Main measurements
         for inst in (INST_TEMPERATURE, INST_HUMIDITY, INST_CO2):
             entities.append(YandexClimateSensor(coordinator, did, inst))
 
         # Diagnostic timestamp (last updated)
-        entities.append(YandexClimateDerivedSensor(coordinator, did, DER_LAST_UPDATED))
+        if enable_last:
+            entities.append(YandexClimateDerivedSensor(coordinator, did, DER_LAST_UPDATED))
 
     async_add_entities(entities)
 
@@ -145,7 +147,6 @@ class YandexClimateDerivedSensor(YandexClimateBase):
         self._attr_name = f"Yandex Climate {kind.name_suffix}"
         self._attr_unique_id = f"{device_id}_{kind.key}"
 
-        # last_updated is a timestamp sensor
         if kind.key == "last_updated":
             self._attr_device_class = SensorDeviceClass.TIMESTAMP
             self._attr_state_class = None
@@ -157,7 +158,6 @@ class YandexClimateDerivedSensor(YandexClimateBase):
         if ts is None:
             return None
 
-        # IMPORTANT: must return datetime object for TIMESTAMP device class
         if self.kind.key == "last_updated":
             return datetime.fromtimestamp(ts, tz=timezone.utc)
 

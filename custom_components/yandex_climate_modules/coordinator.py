@@ -26,7 +26,7 @@ class YandexClimateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> None:
         super().__init__(
             hass,
-            _LOGGER,  # <-- ВАЖНО: передаем logger
+            _LOGGER,
             name="Yandex Climate Modules",
             update_interval=timedelta(seconds=interval_s or DEFAULT_UPDATE_INTERVAL),
         )

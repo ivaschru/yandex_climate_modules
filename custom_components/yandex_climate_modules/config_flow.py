@@ -15,7 +15,15 @@ from .api import (
     YandexIoTAuthError,
     YandexIoTPermissionError,
 )
-from .const import DOMAIN, CONF_TOKEN, CONF_DEVICE_IDS, CLIMATE_INSTANCES
+from .const import (
+    DOMAIN,
+    CONF_TOKEN,
+    CONF_DEVICE_IDS,
+    CLIMATE_INSTANCES,
+    CONF_UPDATE_INTERVAL,
+    CONF_ENABLE_LAST_UPDATED,
+    DEFAULT_UPDATE_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -110,3 +118,37 @@ class YandexClimateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = vol.Schema({vol.Required(CONF_DEVICE_IDS): cv.multi_select(options)})
         return self.async_show_form(step_id="select_modules", data_schema=schema, errors=errors)
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        self._entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        errors = {}
+
+        if user_input is not None:
+            interval = int(user_input.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL))
+            enable_last = bool(user_input.get(CONF_ENABLE_LAST_UPDATED, True))
+            return self.async_create_entry(
+                title="",
+                data={
+                    CONF_UPDATE_INTERVAL: interval,
+                    CONF_ENABLE_LAST_UPDATED: enable_last,
+                },
+            )
+
+        current_interval = self._entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+        current_enable_last = self._entry.options.get(CONF_ENABLE_LAST_UPDATED, True)
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_UPDATE_INTERVAL, default=current_interval): vol.All(
+                    vol.Coerce(int),
+                    vol.Range(min=30, max=3600),
+                ),
+                vol.Required(CONF_ENABLE_LAST_UPDATED, default=current_enable_last): bool,
+            }
+        )
+
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
