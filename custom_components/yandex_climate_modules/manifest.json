@@ -2,12 +2,12 @@
   "domain": "yandex_climate_modules",
   "name": "Yandex Climate Modules (IoT API)",
   "version": "0.1.2",
-  "documentation": "https://github.com/YOUR_GITHUB/yandex_climate_modules",
-  "issue_tracker": "https://github.com/YOUR_GITHUB/yandex_climate_modules/issues",
+  "documentation": "https://github.com/ivaschru/yandex_climate_modules",
+  "issue_tracker": "https://github.com/ivaschru/yandex_climate_modules/issues",
   "requirements": [],
   "dependencies": [],
   "codeowners": [
-    "@YOUR_GITHUB_USERNAME"
+    "@ivaschru"
   ],
   "config_flow": true,
   "iot_class": "cloud_polling"
